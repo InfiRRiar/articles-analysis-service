@@ -1,7 +1,7 @@
 # Articles Analysis Service
 
 ## Disclaimer
-This project was created in order to pracrice. Still in progress
+This project was created in order to practice. Still in progress
 
 ## Overview
 
