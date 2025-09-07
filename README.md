@@ -1,1 +1,1 @@
-# articles-analysis-service-
+# articles-analysis-service
