@@ -3,6 +3,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import FileResponse
 from shared.schemas import RequestData
 import re
+import requests
 
 app = FastAPI()
 
@@ -21,8 +22,10 @@ def main_page():
 
 @app.post("/analyze")
 def analyze(data: RequestData):
-    article_id = extract_id(data.article)
-    if not article_id:
+    data.article = extract_id(data.article)
+    if not data.article:
         return {"summary": "Некорректная ссылка"}
     
-    return {"summary": article_id}
+    answer = requests.post("http://ml:8080/analyze", data=data.model_dump_json())
+    
+    return {"summary": answer.content}

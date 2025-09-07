@@ -3,5 +3,14 @@ services:
     build: 
       context: .
       dockerfile: ./web/Dockerfile
+    container_name: web
     ports:
       - 8000:8000
+
+  ml:
+    build:
+      context: .
+      dockerfile: ./ml/Dockerfile
+    container_name: ml
+    env_file:
+      - .env

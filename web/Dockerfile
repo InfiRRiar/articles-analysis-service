@@ -7,10 +7,10 @@ RUN pip install poetry
 COPY /poetry.lock /web/
 COPY /pyproject.toml /web/
 
-COPY /shared /web/shared
-
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-root
+
+COPY /shared /web/shared
 
 COPY /web/src /web/src
 
