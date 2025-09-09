@@ -4,7 +4,8 @@ from qdrant_client.http.models import Distance, VectorParams
 from langchain_openai.embeddings import OpenAIEmbeddings
 from loguru import logger
 from src.managers.chunk_manager import ArxivChunker
-
+from qdrant_client.models import Filter
+from uuid import uuid4
 
 table_name = "articles"
 
@@ -27,22 +28,20 @@ class QdrantManager():
             embedding=self.embedder
         )
         
-        self.chunker = ArxivChunker()
+        self.chunker = ArxivChunker(500, 50)
 
-    def add_document(self, article_id: str):
+    def add_article(self, article_id: str):
         documents = self.chunker.get_documents(article_id)
-        for doc in documents:
-            print(doc)
-        print(len(documents))
+        uuids = [str(uuid4()) for _ in range(len(documents))]
+        self.vectore_store.add_documents(documents=documents, ids=uuids)
 
     def find_article_by_id(self, article_id: str):
         db_filter = {
-            "filter": {
-                "must": [
-                    {"key": "article_id", "match": {"value": article_id}}
-                ]
-            }
+            "must": [
+                {"key": "metadata.article_id", "match": {"value": article_id}}
+            ]
         }
+        db_filter = Filter(**db_filter)
         result = self.client.scroll(
             collection_name=table_name,
             scroll_filter=db_filter,
@@ -50,3 +49,5 @@ class QdrantManager():
             with_payload=True
         )[0]
         return bool(result)
+    
+qdrant_manager = QdrantManager()

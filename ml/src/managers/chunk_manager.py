@@ -13,12 +13,12 @@ def load_document_from_web(article_id: str) -> Document:
     return doc
 
 class ArxivChunker:
-    def __init__(self):
-        self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=100, chunk_overlap=10)
+    def __init__(self, chunk_size: int, overlap: int):
+        self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=overlap)
 
     def get_documents(self, article_id: str) -> list[Document]:
         article_doc = load_document_from_web(article_id)
-        text_fragments = self.text_splitter.split_text(article_doc.page_content)
-        return text_fragments
+        article_doc.metadata = {"article_id": article_id}
 
-    
+        docs = self.text_splitter.split_documents([article_doc])
+        return docs
