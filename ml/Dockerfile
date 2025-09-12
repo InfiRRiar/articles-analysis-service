@@ -2,15 +2,14 @@ FROM python:3.10-slim-buster
 
 WORKDIR /ml/
 
-RUN pip install poetry
 
 COPY poetry.lock pyproject.toml /ml/
 
-RUN poetry config virtualenvs.create false
-RUN poetry install --no-root
+RUN pip install poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-root
 
 COPY /shared /ml/shared
-
 COPY /ml/src /ml/src
 COPY /ml/app.py /ml/
 

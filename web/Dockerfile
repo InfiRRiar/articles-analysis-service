@@ -2,17 +2,14 @@ FROM python:3.10-slim-buster
 
 WORKDIR /web
 
-RUN pip install poetry
-
 COPY /poetry.lock /web/
 COPY /pyproject.toml /web/
-
-RUN poetry config virtualenvs.create false
-RUN poetry install --no-root
-
 COPY /shared /web/shared
-
 COPY /web/src /web/src
+
+RUN pip install poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-root
 
 ENV PYTHONPATH=/web
 

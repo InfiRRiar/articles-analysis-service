@@ -1,6 +1,6 @@
-from src.managers.qdrant_manager import qdrant_manager
 from src.managers.chunk_manager import ArxivChunker
 from src.managers.mysql_manager import mysql_manager
+from src.managers.qdrant_manager import qdrant_manager
 
 class Summarize:
     def __init__(self):

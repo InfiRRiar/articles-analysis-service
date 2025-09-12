@@ -6,6 +6,7 @@ from loguru import logger
 from src.managers.chunk_manager import ArxivChunker
 from qdrant_client.models import Filter
 from uuid import uuid4
+import os
 
 table_name = "articles"
 
@@ -16,6 +17,7 @@ class QdrantManager():
             collection_name=table_name,
             vectors_config=VectorParams(size=1536, distance=Distance.COSINE)
         )
+        
         self.embedder = OpenAIEmbeddings(
             model = "text-embedding-3-small",
             dimensions=1536,

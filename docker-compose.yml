@@ -12,4 +12,12 @@ services:
       dockerfile: ./ml/Dockerfile
     container_name: ml
     env_file:
-      - .env
+      - ml/.env
+    
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    env_file:
+      - ./config/my.env
+    ports:
+      - 3306
