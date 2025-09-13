@@ -6,6 +6,8 @@ services:
     container_name: web
     ports:
       - 8000:8000
+    depends_on:
+      - ml
   ml:
     build:
       context: .
@@ -13,7 +15,8 @@ services:
     container_name: ml
     env_file:
       - ml/.env
-    
+    depends_on:
+      - mysql
   mysql:
     image: mysql:8.0
     container_name: mysql

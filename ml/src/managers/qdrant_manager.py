@@ -30,10 +30,8 @@ class QdrantManager():
             embedding=self.embedder
         )
         
-        self.chunker = ArxivChunker(500, 50)
 
-    def add_article(self, article_id: str):
-        documents = self.chunker.get_documents(article_id)
+    def add_articles(self, documents):
         uuids = [str(uuid4()) for _ in range(len(documents))]
         self.vectore_store.add_documents(documents=documents, ids=uuids)
 

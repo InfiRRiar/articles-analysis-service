@@ -1,6 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
 from sqlalchemy import String, Text
+from sqlalchemy import insert, select
+from langchain_core.documents import Document
 
 DATABASE_URL="mysql+pymysql://admin:12345@mysql:3306/QNA_DB"
 
@@ -21,6 +23,23 @@ class MySQLManager:
         Base.metadata.create_all(self.engine)
 
     def find_article_by_id(self, article_id: str) -> str:
-        pass
+        with self.engine.connect() as conn:
+            article = conn.execute(
+                select(Article).where(Article.article_id == article_id)
+            ).first()
+            if not article:
+                return None
+            article_text = article.text
+        return article_text
+
+    def add_article(self, article: Document):
+        with self.engine.connect() as conn:
+            conn.execute(
+                insert(Article),
+                [
+                    {"article_id": article.metadata["article_id"], "text": article.page_content}
+                ]
+            )
+            conn.commit()
 
 mysql_manager = MySQLManager()
