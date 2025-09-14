@@ -1,6 +1,9 @@
 from langchain_community.retrievers import ArxivRetriever
 from langchain_core.documents.base import Document
+from langchain_core.prompts import ChatPromptTemplate , MessagesPlaceholder
+from langchain_core.messages import SystemMessage, HumanMessage
 import re
+
 
 loader = ArxivRetriever(
     load_max_docs=1,
@@ -23,3 +26,17 @@ def load_document_from_web(article_id: str) -> Document:
     doc.metadata = {"article_id": article_id}
     doc.page_content = clear_text(doc.page_content)
     return doc
+
+def create_chat(name: str):
+    with open(f"/ml/src/prompts/{name}-system.txt", encoding="utf-8") as f:
+        system_message = f.read()
+    with open(f"/ml/src/prompts/{name}-user.txt", encoding="utf-8") as f:
+        user_message = f.read()
+
+    prompt_template = ChatPromptTemplate.from_messages(
+        [
+            ("system", system_message),
+            ("user", user_message),
+        ]
+    ) 
+    return prompt_template

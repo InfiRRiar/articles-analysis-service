@@ -6,12 +6,12 @@ from loguru import logger
 from src.managers.chunk_manager import ArxivChunker
 from qdrant_client.models import Filter
 from uuid import uuid4
+from langchain_core.documents import Document
 import os
 
-table_name = "articles"
 
 class QdrantManager():
-    def __init__(self):
+    def __init__(self, table_name):
         self.client: QdrantClient = QdrantClient(":memory:")
         self.client.create_collection(
             collection_name=table_name,
@@ -29,25 +29,24 @@ class QdrantManager():
             collection_name=table_name,
             embedding=self.embedder
         )
-        
+        self.table_name = table_name
 
     def add_articles(self, documents):
         uuids = [str(uuid4()) for _ in range(len(documents))]
         self.vectore_store.add_documents(documents=documents, ids=uuids)
 
-    def find_article_by_id(self, article_id: str):
+    def find_documents_by_id(self, article_id: str) -> list[Document]:
         db_filter = {
             "must": [
                 {"key": "metadata.article_id", "match": {"value": article_id}}
             ]
         }
         db_filter = Filter(**db_filter)
-        result = self.client.scroll(
-            collection_name=table_name,
+        article_docs = self.client.scroll(
+            collection_name=self.table_name,
             scroll_filter=db_filter,
             with_vectors=False,
             with_payload=True
         )[0]
-        return bool(result)
-    
-qdrant_manager = QdrantManager()
+
+        return article_docs
