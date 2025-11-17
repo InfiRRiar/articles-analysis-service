@@ -121,11 +121,6 @@
       background-color: #45a049;
     }
 
-    button:disabled {
-      background-color: #9d9d9d;
-      cursor: not-allowed;
-    }
-
     .result {
       margin-top: 20px;
       padding: 20px;
@@ -137,19 +132,12 @@
       color: #333;
       white-space: pre-line;
     }
-
-    hr {
-      border: none;
-      border-top: 1px solid #ddd;
-      margin: 40px 0;
-    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Анализ научных статей</h1>
 
-    <!-- === БЛОК СУММАРИЗАЦИИ === -->
     <div class="input-group">
       <label for="articleInput">Введите ID или ссылку на статью:</label>
       <input type="text" id="articleInput" placeholder="Например: 10.1000/xyz123 или https://arxiv.org/...">
@@ -168,23 +156,6 @@
     <div class="result" id="resultBox">
       Здесь появится пересказ статьи.
     </div>
-
-    <hr>
-
-    <!-- === БЛОК ВОПРОСОВ === -->
-    <h1 style="font-size: 22px;">Вопросы по статье</h1>
-
-    <div class="input-group">
-      <label for="questionInput">Введите вопрос:</label>
-      <input type="text" id="questionInput" placeholder="Например: какие методы использовали авторы?">
-    </div>
-
-    <button id="askBtn" disabled>Задать вопрос</button>
-
-    <div class="result" id="answerBox">
-      Здесь появится ответ на ваш вопрос.
-    </div>
-
   </div>
 
   <script>
@@ -193,21 +164,14 @@
     const analyzeBtn = document.getElementById("analyzeBtn");
     const resultBox = document.getElementById("resultBox");
 
-    const askBtn = document.getElementById("askBtn");
-    const answerBox = document.getElementById("answerBox");
-
-    // блокировать кнопку вопросов при изменении статьи
-    document.getElementById("articleInput").addEventListener("input", () => {
-      askBtn.disabled = true;
-    });
-
     toggle.addEventListener("change", () => {
-      modeLabel.textContent = toggle.checked
-        ? "Подробный и точный пересказ"
-        : "Быстрый пересказ";
+      if (toggle.checked) {
+        modeLabel.textContent = "Подробный и точный пересказ";
+      } else {
+        modeLabel.textContent = "Быстрый пересказ";
+      }
     });
 
-    // === СУММАРИЗАЦИЯ ===
     analyzeBtn.addEventListener("click", async () => {
       const article = document.getElementById("articleInput").value.trim();
       const mode = toggle.checked ? "detailed" : "fast";
@@ -222,48 +186,23 @@
       try {
         const response = await fetch("/analyze", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ article: article, mode: mode })
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            article: article,
+            mode: mode
+          })
         });
 
-        if (!response.ok) throw new Error("Ошибка сервера");
+        if (!response.ok) {
+          throw new Error("Ошибка сервера");
+        }
 
         const data = await response.json();
-        resultBox.innerHTML = (data.summary || "Сервер ответил без пересказа.").replace(/\n/g, "<br>");
-
-        // теперь можно задавать вопросы
-        askBtn.disabled = false;
-
+        resultBox.textContent = data.summary || "Сервер ответил без пересказа.";
       } catch (err) {
         resultBox.textContent = "Ошибка: " + err.message;
-      }
-    });
-
-    // === ВОПРОСЫ ПО СТАТЬЕ ===
-    askBtn.addEventListener("click", async () => {
-      const article = document.getElementById("articleInput").value.trim();
-      const question = document.getElementById("questionInput").value.trim();
-
-      if (question === "") {
-        answerBox.textContent = "Введите вопрос.";
-        return;
-      }
-
-      answerBox.textContent = "Загрузка...";
-
-      try {
-        const response = await fetch("/ask", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ article: article, question: question })
-        });
-
-        if (!response.ok) throw new Error("Ошибка сервера");
-
-        const data = await response.json();
-        answerBox.textContent = data.answer || "Нет ответа от сервера.";
-      } catch (err) {
-        answerBox.textContent = "Ошибка: " + err.message;
       }
     });
   </script>

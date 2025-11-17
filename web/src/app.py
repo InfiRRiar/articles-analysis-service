@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import FileResponse
-from shared.schemas import RequestData
+from shared.schemas import SummarizationRequest, AskRequest, AskResponse
 import re
 import requests
 
@@ -21,11 +21,17 @@ def main_page():
     return FileResponse("/web/src/templates/index.html")
 
 @app.post("/analyze")
-def analyze(data: RequestData):
+def analyze(data: SummarizationRequest):
     data.article = extract_id(data.article)
     if not data.article:
         return {"summary": "Некорректная ссылка"}
     
     answer = requests.post("http://ml:8080/analyze", data=data.model_dump_json())
-    
+    print(answer.content)
+
     return {"summary": answer.content}
+
+@app.post("/ask", response_model=AskResponse)
+async def ask_question(req: AskRequest):
+    answer = requests.post("http://ml:8080/ask", data=req.model_dump_json())
+    return AskResponse(answer=answer.text)

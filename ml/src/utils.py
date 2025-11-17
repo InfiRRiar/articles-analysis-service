@@ -3,6 +3,7 @@ from langchain_core.documents.base import Document
 from langchain_core.prompts import ChatPromptTemplate , MessagesPlaceholder
 from langchain_core.messages import SystemMessage, HumanMessage
 import re
+from loguru import logger
 
 
 loader = ArxivRetriever(
@@ -25,6 +26,7 @@ def load_document_from_web(article_id: str) -> Document:
 
     doc.metadata = {"article_id": article_id}
     doc.page_content = clear_text(doc.page_content)
+
     return doc
 
 def create_chat(name: str):

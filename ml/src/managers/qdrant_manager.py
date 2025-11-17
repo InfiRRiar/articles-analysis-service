@@ -1,13 +1,11 @@
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
+from langchain_core.documents import Document
 from langchain_openai.embeddings import OpenAIEmbeddings
 from loguru import logger
-from src.managers.chunk_manager import ArxivChunker
-from qdrant_client.models import Filter
 from uuid import uuid4
-from langchain_core.documents import Document
-import os
+from qdrant_client.models import Filter
 
 
 class QdrantManager():
@@ -50,3 +48,25 @@ class QdrantManager():
         )[0]
 
         return article_docs
+    
+    def search_relevant_chunks(
+        self,
+        query: str,
+        article_id: str,
+        k: int = 5,
+    ) -> list[Document]:
+        qdrant_filter = Filter(
+            must=[
+                {
+                    "key": "metadata.article_id",
+                    "match": {"value": article_id}
+                }
+            ]
+        )
+        docs = self.vectore_store.similarity_search(
+            query=query,
+            k=k,
+            filter=qdrant_filter
+        )
+
+        return docs

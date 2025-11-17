@@ -1,5 +1,5 @@
 from langchain_core.documents.base import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 class ArxivChunker:
     def __init__(self, chunk_size: int, overlap: int):

@@ -1,18 +1,17 @@
 FROM python:3.10-slim-buster
 
-WORKDIR /ml/
+WORKDIR /ml
 
+RUN pip install uv
 
-COPY poetry.lock pyproject.toml /ml/
+COPY pyproject.toml uv.lock /ml/
 
-RUN pip install poetry && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-root
+RUN uv sync --no-dev
 
-COPY /shared /ml/shared
-COPY /ml/src /ml/src
-COPY /ml/app.py /ml/
+COPY shared/ /ml/shared/
+COPY ml/src/ /ml/src/
+COPY ml/app.py /ml/
 
 ENV PYTHONPATH=/ml
 
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uv", "run", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
